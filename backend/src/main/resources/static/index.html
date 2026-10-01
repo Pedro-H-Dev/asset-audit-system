@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AssetOS | Gestão e Auditoria Corporativa</title>
+    <!-- Font Awesome & Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #0a0d14;
+            --bg-surface: #111622;
+            --bg-card: rgba(22, 30, 46, 0.7);
+            --bg-card-hover: rgba(30, 41, 64, 0.85);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(99, 102, 241, 0.4);
+            --accent-primary: #6366f1;
+            --accent-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            --accent-glow: rgba(99, 102, 241, 0.35);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --shadow-3d: 0 10px 20px -5px rgba(0, 0, 0, 0.4);
+            --shadow-hover: 0 20px 30px -8px rgba(99, 102, 241, 0.25);
+        }
+
+        * { box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding: 0; }
+        
+        body { 
+            background: var(--bg-base); 
+            background-image: radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.08) 0%, transparent 40%),
+                              radial-gradient(circle at 85% 85%, rgba(139, 92, 246, 0.06) 0%, transparent 40%);
+            color: var(--text-main); 
+            display: flex; 
+            min-height: 100vh; 
+            overflow-x: hidden; 
+            font-size: 14px;
+        }
+
+        /* Sidebar compacta */
+        .sidebar { 
+            width: 230px; 
+            background: var(--bg-surface); 
+            border-right: 1px solid var(--border-color); 
+            padding: 20px 14px; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            flex-shrink: 0;
+            backdrop-filter: blur(10px);
+        }
+
+        .brand { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            font-size: 1.25rem; 
+            font-weight: 800; 
+            color: #fff; 
+            text-decoration: none; 
+            margin-bottom: 25px;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-logo-box {
+            width: 38px;
+            height: 38px;
+            background: var(--accent-gradient);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 18px var(--accent-glow);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 1.1rem;
+            color: #fff;
+        }
+
+        .nav-section { margin-bottom: 18px; }
+        .nav-title { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); font-weight: 700; margin-bottom: 8px; padding-left: 8px; }
+        
+        .nav-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            padding: 9px 12px; 
+            color: var(--text-muted); 
+            border-radius: 10px; 
+            font-weight: 600; 
+            font-size: 0.85rem;
+            margin-bottom: 4px; 
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); 
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .nav-item:hover { 
+            transform: translateX(4px); 
+            background: rgba(255, 255, 255, 0.04); 
+            color: #fff; 
+            border-color: var(--border-color);
+        }
+
+        .nav-item.active { 
+            background: var(--accent-gradient); 
+            color: #fff; 
+            box-shadow: 0 6px 16px var(--accent-glow);
+        }
+
+        /* Area Principal */
+        .main-content { flex: 1; padding: 22px 30px; overflow-y: auto; }
+        
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; }
+        .top-bar h1 { font-size: 1.45rem; font-weight: 800; letter-spacing: -0.5px; }
+        .top-bar p { color: var(--text-muted); font-size: 0.82rem; margin-top: 2px; }
+
+        .user-profile { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            background: var(--bg-surface); 
+            padding: 6px 14px 6px 8px; 
+            border-radius: 30px; 
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-3d);
+        }
+
+        .avatar { 
+            width: 30px; 
+            height: 30px; 
+            border-radius: 50%; 
+            background: var(--accent-gradient); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: 700; 
+            font-size: 0.78rem; 
+        }
+
+        /* Cards */
+        .card { 
+            background: var(--bg-card); 
+            backdrop-filter: blur(12px);
+            padding: 20px; 
+            border-radius: 16px; 
+            border: 1px solid var(--border-color); 
+            box-shadow: var(--shadow-3d); 
+            margin-bottom: 20px; 
+            transition: all 0.3s ease; 
+        }
+
+        .card:hover { 
+            background: var(--bg-card-hover);
+            border-color: var(--border-hover); 
+        }
+
+        /* KPIs Grid */
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 22px; }
+        
+        .kpi-card { 
+            background: var(--bg-card); 
+            backdrop-filter: blur(12px);
+            padding: 16px; 
+            border-radius: 14px; 
+            border: 1px solid var(--border-color); 
+            box-shadow: var(--shadow-3d); 
+            transition: all 0.3s ease; 
+            cursor: pointer;
+        }
+
+        .kpi-card:hover { 
+            transform: translateY(-4px); 
+            border-color: var(--border-hover); 
+            box-shadow: var(--shadow-hover); 
+        }
+
+        .kpi-card.active-filter {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 15px var(--accent-glow);
+            background: var(--bg-card-hover);
+        }
+
+        .kpi-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .kpi-icon { 
+            width: 38px; 
+            height: 38px; 
+            border-radius: 10px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1.05rem; 
+        }
+
+        .kpi-data h3 { font-size: 1.7rem; font-weight: 800; letter-spacing: -0.5px; }
+        .kpi-data p { font-size: 0.78rem; color: var(--text-muted); font-weight: 500; }
+
+        /* Tabs */
+        .tab-content { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .tab-content.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .content-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+
+        /* Forms & Inputs */
+        form { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group.full { grid-column: span 2; }
+        label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        input, select, textarea { 
+            background: var(--bg-surface); 
+            border: 1px solid var(--border-color); 
+            padding: 9px 12px; 
+            border-radius: 10px; 
+            color: #fff; 
+            font-size: 0.85rem; 
+            transition: all 0.25s ease;
+        }
+
+        input:focus, select:focus, textarea:focus { 
+            outline: none; 
+            border-color: var(--accent-primary); 
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* Buttons */
+        .btn { 
+            padding: 9px 16px; 
+            border-radius: 10px; 
+            border: none; 
+            font-size: 0.85rem; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: all 0.25s ease; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 8px; 
+        }
+
+        .btn-primary { 
+            background: var(--accent-gradient); 
+            color: #fff; 
+            box-shadow: 0 6px 16px var(--accent-glow); 
+        }
+
+        .btn-primary:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 10px 22px var(--accent-glow); 
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--accent-primary);
+        }
+
+        .btn-danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.25);
+        }
+
+        .btn-icon { 
+            padding: 7px; 
+            background: var(--bg-surface); 
+            border: 1px solid var(--border-color); 
+            color: var(--text-muted); 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: all 0.25s ease; 
+        }
+
+        .btn-icon:hover { 
+            color: #fff; 
+            border-color: var(--accent-primary); 
+        }
+
+        /* Table */
+        table { width: 100%; border-collapse: separate; border-spacing: 0 6px; font-size: 0.85rem; }
+        th { color: var(--text-muted); font-weight: 700; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.6px; padding: 8px 12px; text-align: left; }
+        
+        tbody tr { 
+            background: rgba(255, 255, 255, 0.02); 
+            border-radius: 10px; 
+            transition: all 0.25s ease; 
+        }
+
+        tbody tr:hover { 
+            background: rgba(255, 255, 255, 0.05); 
+        }
+
+        td { padding: 10px 12px; }
+        td:first-child { border-radius: 10px 0 0 10px; }
+        td:last-child { border-radius: 0 10px 10px 0; }
+
+        /* Badges */
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block; }
+        .badge-DISPONIVEL { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-EM_USO { background: rgba(99, 102, 241, 0.15); color: var(--accent-primary); border: 1px solid rgba(99, 102, 241, 0.3); }
+        .badge-MANUTENCAO { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
+
+        /* Timeline */
+        .timeline { display: flex; flex-direction: column; gap: 12px; }
+        .timeline-item { 
+            display: flex; 
+            gap: 12px; 
+            font-size: 0.82rem; 
+            padding: 10px; 
+            border-radius: 10px; 
+            background: rgba(255,255,255,0.015); 
+            border: 1px solid transparent; 
+        }
+
+        .timeline-icon { 
+            width: 30px; 
+            height: 30px; 
+            border-radius: 8px; 
+            background: var(--bg-surface); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 0.82rem; 
+            flex-shrink: 0; 
+            border: 1px solid var(--border-color);
+        }
+
+        /* Modais */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.8); 
+            backdrop-filter: blur(8px); 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 10000; 
+        }
+
+        .modal-content { 
+            background: var(--bg-surface); 
+            width: 90%; 
+            max-width: 580px; 
+            max-height: 85vh; 
+            display: flex;
+            flex-direction: column;
+            border-radius: 18px; 
+            padding: 24px; 
+            border: 1px solid var(--border-hover); 
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6); 
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-body-scroll {
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+
+        .modal-body-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .modal-body-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+        }
+
+        /* Cards do Grid de Locais */
+        .location-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .location-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Menu Lateral -->
+    <aside class="sidebar">
+        <div>
+            <a href="#" class="brand">
+                <div class="brand-logo-box"><i class="fas fa-cubes-stacked"></i></div>
+                <span>Asset<span style="color: var(--accent-primary);">OS</span></span>
+            </a>
+            
+            <div class="nav-section">
+                <div class="nav-title">Gestão</div>
+                <div class="nav-item active" onclick="switchTab('overview', this)"><i class="fas fa-chart-pie"></i> Visão Geral</div>
+                <div class="nav-item" onclick="switchTab('assets', this)"><i class="fas fa-boxes"></i> Inventário</div>
+                <div class="nav-item" onclick="switchTab('employees', this)"><i class="fas fa-users"></i> Colaboradores</div>
+                <div class="nav-item" onclick="switchTab('locations', this)"><i class="fas fa-map-marker-alt"></i> Locais</div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-title">Segurança & Conformes</div>
+                <div class="nav-item" onclick="switchTab('audit', this)"><i class="fas fa-history"></i> Trilha de Auditoria</div>
+                <div class="nav-item" onclick="switchTab('security', this)"><i class="fas fa-shield-alt"></i> Segurança</div>
+                <div class="nav-item" onclick="switchTab('settings', this)"><i class="fas fa-cog"></i> Configurações</div>
+            </div>
+        </div>
+
+        <div style="border-top: 1px solid var(--border-color); padding-top: 15px;">
+            <div style="font-size: 0.78rem; color: var(--success); display: flex; align-items: center; gap: 6px; font-weight: 600;">
+                <i class="fas fa-check-circle"></i> Todos os sistemas OK
+            </div>
+        </div>
+    </aside>
+
+    <!-- Área Principal -->
+    <main class="main-content">
+        <div class="top-bar">
+            <div>
+                <h1 id="pageTitle">Visão Geral de Infraestrutura</h1>
+                <p id="pageSubtitle">Monitore, gerencie e audite os ativos de TI da empresa.</p>
+            </div>
+            <div style="display: flex; gap: 14px; align-items: center;">
+                <button class="btn btn-primary" onclick="openModal('newAssetModal')"><i class="fas fa-plus"></i> Novo Ativo</button>
+                <div class="user-profile">
+                    <div class="avatar">AD</div>
+                    <div style="font-size: 0.8rem;">
+                        <div style="font-weight: 700;">Administrador</div>
+                        <div style="color: var(--text-muted); font-size: 0.7rem;">Operações de TI</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- OVERVIEW -->
+        <div id="tab-overview" class="tab-content active">
+            <div class="kpi-grid">
+                <div class="kpi-card" id="kpiCard-ALL" onclick="filterByKpiStatus('ALL')">
+                    <div class="kpi-header">
+                        <span style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600;">Total de Ativos</span>
+                        <div class="kpi-icon" style="background: rgba(99, 102, 241, 0.15); color: var(--accent-primary);"><i class="fas fa-box"></i></div>
+                    </div>
+                    <div class="kpi-data"><h3 id="kpiTotal">0</h3></div>
+                </div>
+
+                <div class="kpi-card" id="kpiCard-AVAILABLE" onclick="filterByKpiStatus('AVAILABLE')">
+                    <div class="kpi-header">
+                        <span style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600;">Disponíveis</span>
+                        <div class="kpi-icon" style="background: rgba(16, 185, 129, 0.15); color: var(--success);"><i class="fas fa-check"></i></div>
+                    </div>
+                    <div class="kpi-data"><h3 id="kpiAvailable">0</h3></div>
+                </div>
+
+                <div class="kpi-card" id="kpiCard-IN_USE" onclick="filterByKpiStatus('IN_USE')">
+                    <div class="kpi-header">
+                        <span style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600;">Em Uso</span>
+                        <div class="kpi-icon" style="background: rgba(99, 102, 241, 0.15); color: var(--accent-primary);"><i class="fas fa-user-tag"></i></div>
+                    </div>
+                    <div class="kpi-data"><h3 id="kpiInUse">0</h3></div>
+                </div>
+
+                <div class="kpi-card" id="kpiCard-MAINTENANCE" onclick="filterByKpiStatus('MAINTENANCE')">
+                    <div class="kpi-header">
+                        <span style="color: var(--text-muted); font-size: 0.8rem; font-weight: 600;">Em Manutenção</span>
+                        <div class="kpi-icon" style="background: rgba(245, 158, 11, 0.15); color: var(--warning);"><i class="fas fa-tools"></i></div>
+                    </div>
+                    <div class="kpi-data"><h3 id="kpiMaintenance">0</h3></div>
+                </div>
+            </div>
+
+            <div class="content-grid">
+                <div>
+                    <div class="card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <div style="font-size: 1.05rem; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                                <i class="fas fa-list" style="color: var(--accent-primary);"></i> Inventário de Ativos
+                                <span id="activeFilterBadge" style="display:none; font-size:0.7rem; background:rgba(99,102,241,0.2); color:var(--accent-primary); padding:2px 8px; border-radius:12px; margin-left:6px;"></span>
+                            </div>
+                            <input type="text" id="searchInput" placeholder="Buscar por tag, nome..." onkeyup="filterAssets()" style="width: 200px;">
+                        </div>
+                        <div style="overflow-x: auto;">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Ativo</th>
+                                        <th>Tag</th>
+                                        <th>Categoria</th>
+                                        <th>Localização</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="assetsTableBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="card">
+                        <div style="font-size: 1.05rem; font-weight: 700; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;"><i class="fas fa-bolt" style="color: var(--accent-primary);"></i> Atividades Recentes</div>
+                        <div class="timeline" id="recentActivityPanel"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA INVENTÁRIO COMPLETO -->
+        <div id="tab-assets" class="tab-content">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                    <div style="font-size: 1.05rem; font-weight: 700;"><i class="fas fa-boxes" style="color: var(--accent-primary);"></i> Consulta Detalhada do Inventário</div>
+                    <input type="text" id="searchInputAssetsTab" placeholder="Buscar no inventário..." onkeyup="filterAssetsTab()" style="width: 220px;">
+                </div>
+                <div style="overflow-x: auto;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Ativo</th>
+                                <th>Tag</th>
+                                <th>Categoria</th>
+                                <th>Localização</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="assetsTableBodyExpanded"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- ABA COLABORADORES -->
+        <div id="tab-employees" class="tab-content">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+                    <div style="font-size: 1.05rem; font-weight: 700;"><i class="fas fa-users" style="color: var(--accent-primary);"></i> Gestão de Colaboradores & Atribuição</div>
+                    <button class="btn btn-primary" onclick="openModal('newEmployeeModal')"><i class="fas fa-user-plus"></i> Novo Colaborador</button>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Colaborador</th>
+                            <th>Cargo</th>
+                            <th>Departamento</th>
+                            <th>Equipamento Vinculado</th>
+                            <th>Status RH</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="employeeTableBody">
+                        <!-- Renderizado via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ABA LOCAIS -->
+        <div id="tab-locations" class="tab-content">
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+                    <div style="font-size: 1.05rem; font-weight: 700;"><i class="fas fa-map-marker-alt" style="color: var(--accent-primary);"></i> Unidades e Sedes Registradas</div>
+                    <button class="btn btn-primary" onclick="openModal('newLocationModal')"><i class="fas fa-plus"></i> Nova Unidade</button>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;" id="locationsGrid"></div>
+            </div>
+        </div>
+
+        <!-- ABA AUDITORIA -->
+        <div id="tab-audit" class="tab-content">
+            <div class="card">
+                <div style="font-size: 1.05rem; font-weight: 700; margin-bottom: 16px;"><i class="fas fa-history" style="color: var(--accent-primary);"></i> Trilha Completa de Auditoria</div>
+                <div class="timeline" id="fullAuditTrail"></div>
+            </div>
+        </div>
+
+        <!-- ABA SEGURANÇA -->
+        <div id="tab-security" class="tab-content">
+            <div class="card">
+                <div style="font-size: 1.05rem; font-weight: 700; margin-bottom: 12px;"><i class="fas fa-shield-alt" style="color: var(--accent-primary);"></i> Parâmetros de Segurança</div>
+                <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.85rem;">
+                    <div style="display: flex; justify-content: space-between; padding: 12px; background: var(--bg-surface); border-radius: 10px; border: 1px solid var(--border-color);">
+                        <span>Criptografia TLS 1.3</span><strong style="color: var(--success);">ATIVO</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA CONFIGURAÇÕES -->
+        <div id="tab-settings" class="tab-content">
+            <div class="card">
+                <div style="font-size: 1.05rem; font-weight: 700; margin-bottom: 16px;"><i class="fas fa-cog" style="color: var(--accent-primary);"></i> Configurações do Sistema</div>
+                <div class="form-group" style="max-width: 350px;">
+                    <label>Nome da Organização</label>
+                    <input type="text" value="Enterprise IT Infrastructure">
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL HISTÓRICO ATIVO -->
+    <div id="auditModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h3 style="font-size: 1.1rem; font-weight: 800;"><i class="fas fa-history" style="color: var(--accent-primary);"></i> Histórico do Ativo</h3>
+                    <span id="modalAssetName" style="font-size: 0.8rem; color: var(--text-muted);"></span>
+                </div>
+                <button class="btn-icon" onclick="closeModal('auditModal')">&times;</button>
+            </div>
+            <div class="modal-body-scroll">
+                <div class="timeline" id="modalAuditLogs"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL ENDEREÇO / DETALHES LOCAL -->
+    <div id="locationDetailsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h3 style="font-size: 1.1rem; font-weight: 800;" id="locModalTitle"><i class="fas fa-building" style="color: var(--accent-primary);"></i> Detalhes da Unidade</h3>
+                    <span id="locModalSub" style="font-size: 0.8rem; color: var(--text-muted);"></span>
+                </div>
+                <button class="btn-icon" onclick="closeModal('locationDetailsModal')">&times;</button>
+            </div>
+            <div class="modal-body-scroll">
+                <div style="background: var(--bg-surface); padding: 14px; border-radius: 10px; border: 1px solid var(--border-color); margin-bottom: 16px;">
+                    <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Endereço Físico:</div>
+                    <div id="locModalAddress" style="font-size: 0.9rem; font-weight: 600; margin-top: 4px; color: #fff;"></div>
+                    
+                    <div style="display: flex; gap: 20px; margin-top: 12px; font-size: 0.8rem; color: var(--text-muted);">
+                        <div>Responsável: <strong id="locModalManager" style="color:#fff;"></strong></div>
+                        <div>Telefone: <strong id="locModalPhone" style="color:#fff;"></strong></div>
+                    </div>
+                </div>
+
+                <h4 style="font-size: 0.9rem; font-weight: 700; margin-bottom: 10px;"><i class="fas fa-boxes" style="color: var(--accent-primary);"></i> Ativos Presentes nesta Unidade</h4>
+                <table style="font-size: 0.8rem;">
+                    <thead>
+                        <tr>
+                            <th>Ativo</th>
+                            <th>Tag</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="locModalAssetsBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NOVO ATIVO -->
+    <div id="newAssetModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="font-size: 1.1rem; font-weight: 800;"><i class="fas fa-plus-circle" style="color: var(--accent-primary);"></i> Cadastrar Novo Ativo</h3>
+                <button class="btn-icon" onclick="closeModal('newAssetModal')">&times;</button>
+            </div>
+            <div class="modal-body-scroll">
+                <form id="assetModalForm">
+                    <div class="form-group">
+                        <label>Patrimônio (Tag)</label>
+                        <input type="text" id="modalTagNumber" required placeholder="Ex: AST-1004">
+                    </div>
+                    <div class="form-group">
+                        <label>Nome do Equipamento</label>
+                        <input type="text" id="modalName" required placeholder="Ex: MacBook Pro M3">
+                    </div>
+                    <div class="form-group">
+                        <label>Categoria</label>
+                        <input type="text" id="modalCategory" required placeholder="Ex: Notebooks">
+                    </div>
+                    <div class="form-group">
+                        <label>Localização Físico/Lógica</label>
+                        <input type="text" id="modalLocation" required placeholder="Ex: Escritório Fortaleza">
+                    </div>
+                    <div class="form-group full" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px;">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('newAssetModal')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Salvar Ativo</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NOVO COLABORADOR -->
+    <div id="newEmployeeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="font-size: 1.1rem; font-weight: 800;"><i class="fas fa-user-plus" style="color: var(--accent-primary);"></i> Cadastrar Novo Colaborador</h3>
+                <button class="btn-icon" onclick="closeModal('newEmployeeModal')">&times;</button>
+            </div>
+            <div class="modal-body-scroll">
+                <form id="employeeModalForm">
+                    <div class="form-group full">
+                        <label>Nome do Colaborador</label>
+                        <input type="text" id="empNameInput" required placeholder="Ex: João da Silva">
+                    </div>
+                    <div class="form-group">
+                        <label>Cargo</label>
+                        <input type="text" id="empRoleInput" required placeholder="Ex: Desenvolvedor Front-end">
+                    </div>
+                    <div class="form-group">
+                        <label>Departamento</label>
+                        <input type="text" id="empDeptInput" required placeholder="Ex: TI / Tecnologia">
+                    </div>
+                    <div class="form-group full" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px;">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('newEmployeeModal')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Salvar Colaborador</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL NOVA UNIDADE / LOCAL -->
+    <div id="newLocationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="font-size: 1.1rem; font-weight: 800;"><i class="fas fa-map-marker-alt" style="color: var(--accent-primary);"></i> Cadastrar Nova Unidade</h3>
+                <button class="btn-icon" onclick="closeModal('newLocationModal')">&times;</button>
+            </div>
+            <div class="modal-body-scroll">
+                <form id="locationModalForm">
+                    <div class="form-group full">
+                        <label>Nome da Unidade / Sede</label>
+                        <input type="text" id="locNameInput" required placeholder="Ex: Filial São Paulo">
+                    </div>
+                    <div class="form-group full">
+                        <label>Endereço Físico Completo</label>
+                        <input type="text" id="locAddressInput" required placeholder="Ex: Av. Paulista, 1000 - Bela Vista">
+                    </div>
+                    <div class="form-group">
+                        <label>Responsável / Gerente</label>
+                        <input type="text" id="locManagerInput" required placeholder="Ex: Roberto Alves">
+                    </div>
+                    <div class="form-group">
+                        <label>Telefone de Contato</label>
+                        <input type="text" id="locPhoneInput" required placeholder="Ex: (11) 3000-4000">
+                    </div>
+                    <div class="form-group full" style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px;">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal('newLocationModal')">Cancelar</button>
+                        <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Salvar Unidade</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
